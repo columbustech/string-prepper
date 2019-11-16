@@ -1,0 +1,389 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block content %}
+<div class="container">
+  <div class="page-header" id="banner">
+    <div class="row">
+      <div class="col-md-12">
+        <h1>
+          Profile Strings
+        </h1>
+        <p class="lead">
+          <li><b>Missing Data: </b>Detected missing strings, and their pervasiveness</li>
+          <li><b>String Lengths: </b> Statistics on length of strings, across the data</li>
+          <li><b>Number of Words in each string: </b> Statistics on number of words present in each string, across the
+            data</li>
+          </ol>
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <div class="well bs-component">
+        <ul class="nav nav-tabs">
+          <li class="active"><a href="#missing" data-toggle="tab" aria-expanded="true">Missing Data</a></li>
+          <li class=""><a href="#strlen" data-toggle="tab" aria-expanded="false">String Lengths</a></li>
+          <li class=""><a href="#nwords" data-toggle="tab" aria-expanded="false">Number of Words per String</a></li>
+        </ul>
+        <div id="myTabContent" class="tab-content">
+          <div class="tab-pane fade active in" id="missing">
+            <div class="row">
+              <div class="col-md-12">
+
+                <br>
+                <div class="well well-sm">
+                  Total Number of Strings: {{total_values}}
+                </div>
+                <br>
+                <center>
+                  <h6>Statistics on Missing Data, calculated out of all (missing and
+                      non-missing) data</h6>
+                </center>
+                <table class="table table-striped table-hover text-center ">
+                  <!-- <thead>
+                    <tr>
+                      <th></th>
+                      <th class="text-center">Statistics on Missing Data, calculated out of all (missing and
+                        non-missing) data</th>
+                      <th></th>
+                    </tr>
+                  </thead> -->
+                  <tbody>
+                    <tr>
+                      <td>Missing Strings Detected</td>
+                      <td>{{type_missing_values_caught}}</td>
+                    </tr>
+                    <tr>
+                      <td>Number of Missing Strings</td>
+                      <td>{{n_missing}}</td>
+                    </tr>
+                    <tr>
+                      <td>% of Missing Strings (out of Total Strings)</td>
+                      <td>{{pervasiveness_missing}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="tab-pane fade" id="strlen">
+
+            {% if n_non_missing > 0 %}
+            <div class="row">
+              <div class="col-md-4">
+                <br>
+                <div class="well well-sm">
+                  Total Number of Non-Missing Strings: {{n_values}}
+                </div>
+                <br>
+                <center>
+                  <h6>Statistics on String Lengths, calculated out of non-missing strings only</h6>
+                </center>
+                <table class="table table-striped table-hover text-center">
+                  <!-- <thead>
+                    <tr>
+
+                      <th></th>
+                      <th class="text-center">Statistics on String Lengths, calculated out of non-missing strings only
+                      </th>
+                      <th></th>
+                    </tr>
+                  </thead> -->
+                  <tbody>
+                    <tr>
+                      <td>Minimum String Length</td>
+                      <td>{{ stats.0 }}</td>
+                    </tr>
+                    <tr>
+                      <td>Maximum String Length</td>
+                      <td>{{ stats.1 }}</td>
+                    </tr>
+                    <tr>
+                      <td>Mean String Length</td>
+                      <td>{{ stats.2 }}</td>
+                    </tr>
+                    <tr>
+                      <td>Standard Deviation in String Lengths</td>
+                      <td>{{ stats.3 }}</td>
+                    </tr>
+                    <tr>
+                      <td>Median String Length</td>
+                      <td>{{ stats.4 }}</td>
+                    </tr>
+
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="col-md-8">
+                <br>
+                <center>
+                  <div id="hist-one"></div>
+                </center>
+              </div>
+            </div>
+            {% else %}
+            <div class="row">
+              <div class="col-md-12">
+                <br>
+                <b>{{ message }}</b>
+              </div>
+            </div>
+            {% endif %}
+            <div class="row">
+
+            </div>
+          </div>
+          <div class="tab-pane fade" id="nwords">
+              {% if n_non_missing > 0 %}
+            <div class="row">
+              <div class="col-md-4">
+                <br>
+                <div class="well well-sm">
+                  Total Number of Non-Missing Strings: {{n_values}}
+                </div>
+                <br>
+                <center>
+                  <h6>Statistics on Words across Strings, calculated out of non-missing strings only</h6>
+                </center>
+                <table class="table table-striped table-hover text-center">
+                  <!-- <thead>
+                    <tr>
+
+                      <th></th>
+                      <th class="text-center">Statistics on Words across Strings, calculated out of non-missing strings
+                        only</th>
+                      <th></th>
+                    </tr>
+                  </thead> -->
+                  <tbody>
+                    <tr>
+                      <td>Total number of words across all strings</td>
+                      <td>{{ stats_words.0 }}</td>
+                    </tr>
+                    <tr>
+                      <td>Number of words, in string containing least number of words</td>
+                      <td>{{ stats_words.1 }}</td>
+                    </tr>
+                    <tr>
+                      <td>Number of words, in string containing maximum number of words</td>
+                      <td>{{ stats_words.2 }}</td>
+                    </tr>
+                    <tr>
+                      <td>Mean of number of words in each string</td>
+                      <td>{{ stats_words.3 }}</td>
+                    </tr>
+                    <tr>
+                      <td>Standard Deviation of number of words in each string</td>
+                      <td>{{ stats_words.4 }}</td>
+                    </tr>
+                    <tr>
+                      <td>Median of number of words in each string</td>
+                      <td>{{ stats_words.5 }}</td>
+                    </tr>
+                    <tr>
+                      <td>Number of words beginning with a capital letter</td>
+                      <td>{{ num_capitals }}</td>
+                    </tr>
+
+                  </tbody>
+                </table>
+
+              </div>
+              <div class="col-md-8">
+                <br>
+                <center>
+                  <div id="hist-two"></div>
+                </center>
+              </div>
+            </div>
+            {% else %}
+            <div class="row">
+              <div class="col-md-12">
+                <br>
+                <b>{{ message }}</b>
+              </div>
+            </div>
+            {% endif %}
+            <div class="row">
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <button type="button" value="backChoice" id="backtoprofilerchoicebtn" class="btn btn-default">Back to
+        Choices</button>
+      <button type="button" value="backUpload" id="backtouploadbtn" class="btn btn-default">Back to Upload Page</button>
+      <button type="button" value="backCDrive" id="backtoCbtn" class="btn btn-default">Back to C Drive</button>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <br>
+        <form> 
+            <input type="button" class="btn btn-default" value="Print this page" onclick="window.print()" /> 
+         </form> 
+      <br>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block script %}
+
+
+
+$("#backtoprofilerchoicebtn").click(function(){
+  document.location.href = "{% url 'choices' %}";
+  });
+  $("#backtouploadbtn").click(function(){
+  document.location.href = "{% url 'upload' %}";
+  });
+  
+  $("#backtoCbtn").click(function(){
+  document.location.href = "{{ c_drive_ui_url }}";
+  });
+
+//var jsonstr = JSON.stringify('{{ json_data }}');
+//var data = JSON.parse(jsonstr)
+//console.log(data['lengths']);
+var x = {{ lengths }}
+var trace = {
+x: x,
+type: 'histogram',
+marker: {
+line: {
+width: 1
+}
+},
+opacity: 0.75,
+autobinx: false,
+xbins: {
+size: 1
+}
+};
+var data = [trace];
+var layout = {
+bargap: 0.05,
+bargroupgap: 0.2,
+title: "Histogram for String Lengths",
+xaxis: {title: "String Length"},
+yaxis: {title: "Count"}
+};
+//Plotly.newPlot('myDiv', data, layout);
+Plotly.newPlot('hist-one', data, layout);
+
+var x_words = {{ lengths_words }}
+var trace_words = {
+x: x_words,
+type: 'histogram',
+marker: {
+line: {
+width: 1
+}
+},
+opacity: 0.75,
+autobinx: false,
+xbins: {
+size: 1
+}
+};
+var data_words = [trace_words];
+var layout_words = {
+bargap: 0.05,
+bargroupgap: 0.2,
+title: "Histogram for Number of Words in a String",
+xaxis: {title: "x = No. of Words in a String"},
+yaxis: {title: "No. of Strings containing x Words"}
+};
+Plotly.newPlot('hist-two', data_words, layout_words)
+
+function printDiv(eleId){
+  var PW = window.open('', '_blank', 'Print content');
+
+  //IF YOU HAVE DIV STYLE IN CSS, REMOVE BELOW COMMENT AND ADD CSS ADDRESS
+  //PW.document.write('<link rel="stylesheet" href="{% static 'css/show_page.css' %}"/>');
+
+  PW.document.write(document.getElementById(eleId).innerHTML);
+  PW.document.close();
+  PW.focus();
+  PW.print();
+  PW.close();
+}
+
+$(document).ready(function() {
+  $("#backtoCbtn").click(function(){
+    $.ajax({
+      type: "POST",
+      url: '/myapp/exit_app/',
+      success: function(data) {
+        document.location.href = "{{ c_drive_ui_url }}";
+      }
+    });
+  });
+  $("#backtoprofilerchoicebtn").click(function(){
+    document.location.href = "{% url 'choices' %}";
+  });
+  $("#backtouploadbtn").click(function(){
+    document.location.href = "{% url 'upload' %}";
+  });
+});
+{% endblock %}
+
+
+// var trace1 = {
+// x: x1,
+// y: y1,
+// name: 'control',
+// autobinx: false,
+// histnorm: "count",
+// marker: {
+// color: "rgba(255, 100, 102, 0.7)",
+// line: {
+// color: "rgba(255, 100, 102, 1)",
+// width: 1
+// }
+// },
+// opacity: 0.5,
+// type: "histogram",
+// xbins: {
+// end: 2.8,
+// size: 0.06,
+// start: .5
+// }
+// };
+// var trace2 = {
+// x: x2,
+// y: y2,
+// autobinx: false,
+// marker: {
+// color: "rgba(100, 200, 102, 0.7)",
+// line: {
+// color: "rgba(100, 200, 102, 1)",
+// width: 1
+// }
+// },
+// name: "experimental",
+// opacity: 0.75,
+// type: "histogram",
+// xbins: {
+// end: 4,
+// size: 0.06,
+// start: -3.2
+
+// }
+// };
+// var data = [trace1, trace2];
+// var layout = {
+// bargap: 0.05,
+// bargroupgap: 0.2,
+// barmode: "overlay",
+// title: "Sampled Results",
+// xaxis: {title: "Value"},
+// yaxis: {title: "Count"}
+// };
+// Plotly.newPlot('myDiv', data, layout);

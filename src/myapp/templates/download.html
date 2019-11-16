@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block content %}
+<div class="container">
+  <div class="page-header" id="banner">
+    <div class="row">
+      <div class="col-md-12">
+        <h1>
+          Download
+        </h1>
+        <p class="lead">Download the cleaned file to local or Cloud C Drive</p>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="item col-md-12">
+      <h5>Download the cleaned file: &nbsp;
+        <button type="button" id="download-btn" value="Download" class="btn btn-primary"><i class="fa fa-download"></i> Download</button>
+      </h5>
+    </div>
+  </div>
+  <div class="row">
+    <div class="item col-md-12">
+      <h5>Upload the cleaned file to CDrive: &nbsp;
+        <button type="submit" id="upload-button" value="UploadC" class="btn btn-primary"><i class="fa fa-upload"></i>
+          Upload</button>
+      </h5>
+    </div>
+  </div>
+  <div class="row">
+    <div class="item col-md-12">
+      <br>
+      <div class="alert alert-dismissible alert-success" style="display:none;">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <div id="upload-message"></div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <button type="button" value="backChoice" id="backtoprofilerchoicebtn" class="btn btn-default">Back to
+        Choices</button>
+      <button type="button" value="backUpload" id="backtouploadbtn" class="btn btn-default">Back to Upload Page</button>
+      <button type="button" value="backCDrive" id="backtoCbtn" class="btn btn-default">Back to C Drive</button>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <br>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block script %}
+$(document).ready(function() {
+  $('#download-btn').click(function(e) {
+    e.preventDefault(); //stop the browser from following
+    window.location.href = "{% static 'pdf/clean/'|add:clean_file_name %}";
+  });
+  $("#upload-button").click(function(e){
+    e.preventDefault();
+    $(".alert").show();
+    $("#upload-message").html("Uploading...");
+    $.ajax({
+      type: "POST",
+      url: '/myapp/upload_cdrive/',
+      dataType: 'json',
+      success: function(data) {
+        $("#upload-message").html("Upload completed!");
+      },
+      error: function (jqXHR, textStatus, errorThrown) {
+        $(".alert").removeClass("alert-success").addClass("alert-danger");
+        $("#upload-message").html("Upload failed!");
+      }
+    });
+  });
+  $("#backtoprofilerchoicebtn").click(function(){
+    document.location.href = "{% url 'choices' %}";
+  });
+  $("#backtouploadbtn").click(function(){
+    document.location.href = "{% url 'upload' %}";
+  });
+  $("#backtoCbtn").click(function(){
+    $.ajax({
+      type: "POST",
+      url: '/myapp/exit_app/',
+      success: function(data) {
+        document.location.href = "{{ c_drive_ui_url }}";
+      }
+    });
+  });
+});
+{% endblock %}

@@ -1,0 +1,200 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block content %}
+<div class="container">
+  <div class="page-header" id="banner">
+    <div class="row">
+      <div class="col-md-12">
+        <h1>
+          Clean Strings
+        </h1>
+        <p class="lead">
+          <ol>
+            <li><b>Select strings</b> that you want to merge.</li>
+            <li>Click on a <b>Merge</b> button (Normalize selected strings - the selected strings will be replaced by
+              the longest one)</li>
+            <li> <b>Merge</b> as many as you can on the screen</li>
+            <li> When you are done with the strings on screen, click <b>Clean Up</b> </li>
+              <li>Clicking <b>Clean Up</b> will push the merges to file level, and show you a new set of strings to merge.</li>
+            <li> <b>Repeat</b> the merge and clean up until you are done with cleaning up the file for now.</li>
+            <li> Make sure to press Clean up before you press I'm done</li>
+            <li> Press <b>I'm done </b>(you can always proceed with further cleaning on the new cleaned file, that
+              you'll
+              download on next screen)</li>
+          </ol>
+        </p>
+      </div>
+    </div>
+  </div>
+  {% if show_normalizer %}
+    <div class="row">
+      <div class="col-md-12">
+        <div class="well bs-component">
+          <form action="{% url 'clean_strings' %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="row">
+              <div class="col-sm-4">
+                <div class="item col-sm-12">
+                  <center>
+                    <button type="button" value="Merge" class="mergebtn btn btn-primary">Merge</button>
+                    <input id="mergeval" type="hidden" name="merge" value="" />
+                    <br><br>
+                  </center>
+                  <table class="table table-striped table-hover ">
+                    <tbody>
+                      {% for s in similar_strings_1 %}
+                        <tr class="info">
+                          <td>
+                            <label class="control control--checkbox">
+                              <input style="display:inline;" type="checkbox" name="clean" value="{{ s }}" />{{ s }}
+                              <div class="control__indicator"></div>
+                            </label>
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="col-sm-4">
+                <div class="item col-sm-12">
+                  <center>
+                    <button type="button" value="Merge" class="mergebtn btn btn-primary">Merge</button>
+                    <input id="mergeval" type="hidden" name="merge" value="" />
+                    <br><br>
+                  </center>
+                  <table class="table table-striped table-hover ">
+                    <tbody>
+                      {% for s in similar_strings_2 %}
+                        <tr class="info">
+                          <td>
+                            <label class="control control--checkbox">
+                              <input style="display:inline;" type="checkbox" name="clean" value="{{ s }}" />{{ s }}
+                              <div class="control__indicator"></div>
+                            </label>
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                  <center>
+                    <button type="button" value="Merge" class="mergebtn btn btn-primary">Merge</button>
+                    <input id="mergeval" type="hidden" name="merge" value="" />
+                  </center>
+                </div>
+              </div>
+              <div class="col-sm-4">
+                <div class="item col-sm-12">
+                  <center>
+                    <button type="button" value="Merge" class="mergebtn btn btn-primary">Merge</button>
+                    <input id="mergeval" type="hidden" name="merge" value="" />
+                    <br><br>
+                  </center>
+                  <table class="table table-striped table-hover ">
+                    <tbody>
+                      {% for s in similar_strings_3 %}
+                        <tr class="info">
+                          <td>
+                            <label class="control control--checkbox">
+                              <input style="display:inline;" type="checkbox" name="clean" value="{{ s }}" />{{ s }}
+                              <div class="control__indicator"></div>
+                            </label>
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12 text-center">
+                <br>
+                <button type="submit" value="Clean Up" class="btn btn-info">Clean Up (Show next set of entries to
+                  merge)</button>
+                <input id="mergeval" type="hidden" name="merge" value="" />
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12 text-center">
+                <br>
+                <button type="button" value="Done" id="donebtn" class="btn btn-success">I'm Done</button>
+                <input id="mergeval" type="hidden" name="merge" value="" />
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  {% else %}
+    <div class="row">
+      <div class="item col-md-12">
+        <div class="alert alert-dismissible alert-success">
+          <button type="button" class="close" data-dismiss="alert">&times;</button>
+          <strong>Couldn't find any strings to clean</strong>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+  <div class="row">
+    <div class="col-md-12">
+      <button type="button" value="backChoice" id="backtoprofilerchoicebtn" class="btn btn-default">Back to
+        Choices</button>
+      <button type="button" value="backUpload" id="backtouploadbtn" class="btn btn-default">Back to Upload Page</button>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <br>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block script %}
+$(document).ready(function() {
+  $(".mergebtn").click(function(){
+    var current_merge = []
+    var retain_val = ""
+    $.each($("input[name='clean']:checked"), function() {
+      current_string = $(this).val();
+      if (retain_val.length < current_string.length) { 
+        retain_val=current_string; 
+      } 
+      current_merge.push($(this).val()); 
+    });
+    $.each($("input[name='clean' ]:checked"), function() { 
+      current_val=$(this).val(); $(this).val("");
+      parent=$(this).parent(); $(this).parent().css("background-color", "#8FBC8F" ); 
+      parent_html=$(this).parent().html();
+      new_parent_html=parent_html.split(">")[0] + ">" + retain_val;
+      console.log("New parent");
+      console.log(new_parent_html);
+      $(this).parent().html(new_parent_html);
+      console.log(parent);
+      console.log($(parent).children());
+      $(this).val(retain_val);
+      $(this).prop("checked", false);
+    });
+    current_merge_val = $("#mergeval").val();
+    append_val = retain_val + "," + current_merge.join(",");
+    if (current_merge_val == "") {
+      current_merge_val = append_val;
+    } else {
+      current_merge_val = current_merge_val + "|" + append_val;
+    }
+    $("#mergeval").val(current_merge_val);
+    console.log(retain_val);
+    console.log(current_merge.join(","));
+    console.log(current_merge_val);
+  });
+  $("#donebtn").click(function(){
+    document.location.href = "{% url 'download' %}";
+  });
+  $("#backtoprofilerchoicebtn").click(function(){
+    document.location.href = "{% url 'choices' %}";
+  });
+  $("#backtouploadbtn").click(function(){
+    document.location.href = "{% url 'upload' %}";
+  });
+});
+{% endblock %}

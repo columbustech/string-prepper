@@ -1,0 +1,16 @@
+certifi
+chardet
+Cython
+django
+idna
+joblib
+numpy
+pandas
+py-stringmatching
+py-stringsimjoin
+PyPrind
+python-dateutil
+pytz
+requests
+six
+urllib3

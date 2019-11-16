@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block content %}
+<div class="container">
+  <div class="page-header" id="banner">
+    <div class="row">
+      <div class="col-md-12">
+        <h1>
+          Confirm File
+        </h1>
+        <p class="lead">Look at the sample from the file and confirm if this is the intended upload.</p>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <table class="table table-striped table-hover ">
+        <tbody>
+          {% for t in sample_tuples %}
+            <tr class="info">
+              <td>{{ t }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <button type="button" value="Confirm" id="confirmbtn" class="btn btn-primary">Confirm</button>
+      <button type="button" value="backUpload" id="backtouploadbtn" class="btn btn-default">Back to Upload Page</button>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <br>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block script %}
+$(document).ready(function() {
+  $("#confirmbtn").click(function(){
+    document.location.href = "{% url 'choices' %}";
+  });
+  $("#backtouploadbtn").click(function(){
+    document.location.href = "{% url 'upload' %}";
+  });
+});
+{% endblock %}
