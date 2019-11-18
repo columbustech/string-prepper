@@ -59,22 +59,10 @@ def upload(request):
             request.session.set_expiry(response.json()['expires_in'])
         else:
             return HttpResponseRedirect(AUTH_URL)
-    token = request.session.get(CLIENT_TOKEN_KEY)
-    cdrive_files = []
-    if not token is None:
-        post_url = CDRIVE_URL + "/list/"
-        header = {"Authorization": "Bearer " + token}
-        list_response = requests.get(
-            url=post_url,
-            headers=header
-        )
-        if list_response.status_code == requests.codes.ok:
-            for r in list_response.json():
-                cdrive_files.append(r['file_name'])
     return render(
         request,
         'upload.html',
-        {'form': form, 'cdrive_files': cdrive_files, 'c_drive_ui_url': CDRIVE_UI_URL}
+        {'form': form, 'c_drive_ui_url': CDRIVE_UI_URL}
     )
 
 def sample(request):
@@ -90,14 +78,14 @@ def sample(request):
     Returns an HttpResponse object.
     """
     upload_type = ""
-    if 'cdrive_file' in request.POST:
+    cdrive_file_path = request.POST.get('cdriveFile')
+    if cdrive_file_path is not None:
         upload_type = "CDrive"
     elif 'docfile' in request.FILES:
         upload_type = "Local"
     if upload_type == "CDrive":
-        cdrive_file = request.POST.getlist('cdrive_file')[0]
         token = request.session[CLIENT_TOKEN_KEY]
-        get_url = CDRIVE_URL + "/file-content?file_name=" + str(cdrive_file)
+        get_url = CDRIVE_URL + "content/?path=" + str(cdrive_file_path)
         header = {"Authorization": "Bearer " + token}
         read_response = requests.get(url=get_url, headers=header)
         tuples = read_response.json().split("\n")
@@ -107,9 +95,13 @@ def sample(request):
         column_order = ['id', 'foo']
         if not os.path.exists(CDRIVE_FILES_DIR):
             os.makedirs(CDRIVE_FILES_DIR)
+        index = cdrive_file_path.rfind("/")
+        cdrive_file = cdrive_file_path[index+1:]
+        parent_path = cdrive_file_path[0:index]
         uploaded_df[column_order].to_csv(os.path.join(CDRIVE_FILES_DIR, cdrive_file), index=False)
         sample_tuples = tuples[1:10]
         request.session['uploaded_file'] = cdrive_file
+        request.session['cdrive_path'] = parent_path
         request.session['file_type'] = "CDrive"
     elif upload_type == "Local":
         uploaded_doc = Document(docfile=request.FILES['docfile'])
@@ -149,10 +141,11 @@ def upload_cdrive(request):
     Returns an HttpResponse object.
     """
     uploaded_file = request.session.get('uploaded_file')
+    parent_path = request.session.get('cdrive_path')
     clean_file_name = os.path.basename(uploaded_file) + CLEAN_FILES_SUFFIX
     clean_file_path = os.path.join(CLEAN_FILES, clean_file_name)
-    files = {'file': open(clean_file_path, 'rb')}
-    post_url = CDRIVE_URL + "/upload/"
+    files = {'file': (clean_file_name, open(clean_file_path, 'rb')), 'path': (None, parent_path)}
+    post_url = CDRIVE_URL + "upload/"
     token = request.session[CLIENT_TOKEN_KEY]
     header = {"Authorization": "Bearer " + token}
     try:
@@ -200,6 +193,8 @@ def exit_app(request):
         del request.session["file_type"]
     if "uploaded_file_name" in request.session:
         del request.session["uploaded_file_name"]
+    if "cdrive_path" in request.session:
+        del request.session["cdrive_path"]
     return HttpResponse('')
 
 def download(request):
@@ -258,7 +253,7 @@ def clean_strings(request):
         show_normalizer = True
         if num_strings == 0:
             show_normalizer = False
-        num_each = len(similar_strings) / 3
+        num_each = len(similar_strings) // 3
         similar_strings_1 = similar_strings[0:num_each]
         similar_strings_2 = similar_strings[num_each:2 * num_each]
         similar_strings_3 = similar_strings[2 * num_each:]

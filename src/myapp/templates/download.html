@@ -63,7 +63,7 @@ $(document).ready(function() {
     $("#upload-message").html("Uploading...");
     $.ajax({
       type: "POST",
-      url: '/myapp/upload_cdrive/',
+      url: '../upload_cdrive/',
       dataType: 'json',
       success: function(data) {
         $("#upload-message").html("Upload completed!");
@@ -83,7 +83,7 @@ $(document).ready(function() {
   $("#backtoCbtn").click(function(){
     $.ajax({
       type: "POST",
-      url: '/myapp/exit_app/',
+      url: '../exit_app/',
       success: function(data) {
         document.location.href = "{{ c_drive_ui_url }}";
       }

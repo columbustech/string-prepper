@@ -58,15 +58,10 @@
           <form action="{% url 'sample' %}" onsubmit="return validateFormCDrive()" method="post" enctype="multipart/form-data" class="form-horizontal">
             {% csrf_token %}
             <fieldset>
-              <legend>Select a file from C Drive</legend>
+              <legend>Select a file from CDrive</legend>
               <div class="form-group">
                 <div class="col-lg-12">
-                  <select id="select-cdrive-file" name="cdrive_file" class="form-control">
-                    <option></option>
-                    {% for cdrive_file in cdrive_files %}
-                    <option value="{{ cdrive_file }}">{{ cdrive_file }}</option>
-                    {% endfor %}
-                  </select>
+		  <input id="cdrive-file-input" type="text" name="cdriveFile"/>
                 </div>
               </div>
               <div class="form-group">
@@ -99,7 +94,7 @@
 {% block script %}
 function validateFormCDrive() {
   var localFile = $("#id_docfile")[0].files[0];
-  var cdriveFile = $("#select-cdrive-file").children("option:selected").val();
+  var cdriveFile = $("#cdrive-file-input").val();
   var isValid = true;
   if(localFile != undefined) {
     isValid = false;
@@ -128,7 +123,7 @@ function validateFormCDrive() {
 }
 function validateFormLocal() {
   var localFile = $("#id_docfile")[0].files[0];
-  var cdriveFile = $("#select-cdrive-file").children("option:selected").val();
+  var cdriveFile = $("#cdrive-file-input").val();
   var isValid = true;
   if(cdriveFile != '') {
     isValid = false;
@@ -162,7 +157,7 @@ $(document).ready(function() {
   $("#backtoCbtn").click(function(){
     $.ajax({
       type: "POST",
-      url: '/myapp/exit_app/',
+      url: 'myapp/exit_app/',
       success: function(data) {
         document.location.href = "{{ c_drive_ui_url }}";
       }
