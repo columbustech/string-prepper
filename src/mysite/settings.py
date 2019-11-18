@@ -121,5 +121,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = "/app/" + os.environ['COLUMBUS_USERNAME'] + "/string-prepper/static/"
+STATIC_ROOT = os.path.join(os.path.join(BASE_DIR, 'myapp'), 'static')
 FORCE_SCRIPT_NAME = "/app/" + os.environ['COLUMBUS_USERNAME'] + "/string-prepper/"
